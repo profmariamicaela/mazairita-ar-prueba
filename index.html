@@ -1,36 +1,52 @@
+html
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mazairita AR - Demo </title>
-    <!-- A-Frame para WebXR nativo -->
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Mazairita AR - Demo</title>
+<!-- A-Frame para WebXR nativo -->
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script&gt;
+
+<!-- Componente personalizado para evitar que el modelo desaparezca -->
+<script>
+AFRAME.registerComponent('disable-culling', {
+init: function () {
+this.el.addEventListener('model-loaded', () => {
+const mesh = this.el.getObject3D('mesh');
+if (mesh) {
+mesh.traverse((node) => {
+if (node.isMesh) {
+node.frustumCulled = false;
+}
+});
+}
+});
+}
+});
+</script>
 </head>
-<body style="margin: 0 px; overflow: hidden;">
+<body style="margin: 0; overflow: hidden;">
 
-    <!-- inicio de escena API nativa del navegador para RA (WebXR) -->
-    <!--para sacar la variable de GPS , a ver si asi me queda en el pisoooo  -->
-    <a-scene webxr="optionalFeatures: hit-test, local-floor;" arjs="sourceType: webcam; debugUIEnabled: false;">
-        
-        <a-assets>
-            <!-- render .glb -->
-            <a-asset-item id="Mazairita" src="MazairitaGiro.glb"></a-asset-item>
-        </a-assets>
+<!-- inicio de escena API nativa del navegador para RA (WebXR) -->
+<a-scene webxr="optionalFeatures: hit-test, local-floor;" arjs="sourceType: webcam; debugUIEnabled: false;">
 
-        <!-- Anclaje espacial  -->
-        <!-- Posicionamos al Mazairita 2 metros adelante (Z = -2) y apoyado en el piso (Y = 0) -->
-        <a-entity id="contenedor-Mazairita" position="0 0 -2">
-            <a-entity 
-                gltf-model="#Mazairita" 
-                scale="0.2 0.2 0.2"
-                rotation="0 0 0">
-            </a-entity>
-        </a-entity>
+<a-assets>
+<!-- render .glb -->
+<a-asset-item id="Mazairita" src="MazairitaGiro.glb"></a-asset-item>
+</a-assets>
 
-        <!-- probando: lacmara se desvincula del objeto. El usuario puede caminar alrededor -->
-        <a-entity camera look-controls></a-entity>
-        
-    </a-scene>
+<!-- Anclaje espacial -->
+<!-- Posicionamos al Mazairita 2 metros adelante (Z = -2) y apoyado en el piso (Y = 0) -->
+
+<!-- Añadimos el componente disable-culling aquí -->
+
+
+
+
+<!-- probando: la cámara se desvincula del objeto. El usuario puede caminar alrededor -->
+
+
+</a-scene>
 </body>
 </html>
