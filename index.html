@@ -3,34 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mazairita AR - Demo </title>
-    <!-- A-Frame para WebXR nativo -->
+    <title>Multimedial RA - 3er Año</title>
+    <!-- Librería A-Frame -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    
+    <style>
+        /* Botón 2D superpuesto para habilitar audio en móviles */
+        .ar-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            font-family: Arial, sans-serif;
+        }
+        .btn-audio {
+            background-color: #ff5722;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+    </style>
 </head>
-<body style="margin: 0px; overflow: hidden;">
+<body style="margin: 0; overflow: hidden;">
 
-    <!-- inicio de escena API nativa del navegador para RA (WebXR) -->
-    <!--para sacar la variable de GPS , a ver si asi me queda en el pisoooo  -->
+    <!-- Botón flotante para activar reproducción de voz -->
+    <div class="ar-overlay">
+        <button class="btn-audio" onclick="reproducirAudio()">🔊 Escuchar a Mazairita</button>
+    </div>
+
+    <!-- Escena WebXR -->
     <a-scene webxr="optionalFeatures: hit-test, local-floor;" arjs="sourceType: webcam; debugUIEnabled: false;">
         
+        <!-- Carga de Recursos -->
         <a-assets>
-            <!-- render .glb -->
+            <!-- Personaje GLB -->
             <a-asset-item id="Mazairita" src="MAZAIRITA-GIRO.glb"></a-asset-item>
+            
+            <!-- Archivo de Audio del Stand (Ejemplo: year3) -->
+            <audio id="audio-stand" src="audio/year3.mp3" preload="auto"></audio>
         </a-assets>
 
-        <!-- Anclaje espacial  -->
-        <!-- Posicionamos al Mazairita 2 metros adelante (Z = -2) y apoyado en el piso (Y = 0) -->
-        <a-entity id="contenedor-Mazairita" position="0 0 -2">
+        <!-- Luz ambiental para que el modelo resalte bien -->
+        <a-light type="ambient" intensity="0.9"></a-light>
+
+        <!-- Contenedor general emplazado a 2 metros frente al usuario -->
+        <a-entity id="contenedor-experiencia" position="0 0 -2">
+            
+            <!-- 1. ROBOT MAZAIRITA -->
             <a-entity 
                 gltf-model="#Mazairita" 
                 scale="0.2 0.2 0.2"
-                rotation="0 0 0">
+                position="-0.8 0 0"
+                rotation="0 30 0">
             </a-entity>
+
+            <!-- 2. TEXTO DE PRUEBA / INFORMACIÓN -->
+            <a-entity position="0.6 0.5 0" rotation="0 -15 0">
+                <a-plane width="1.8" height="0.8" color="#111111" opacity="0.85" radius="0.05"></a-plane>
+                <a-text 
+                    value="TEXTO DE PRUEBA 1\n\nArea de 3er Ano" 
+                    align="center" 
+                    color="#FFFFFF" 
+                    width="1.6" 
+                    position="0 0 0.01">
+                </a-text>
+            </a-entity>
+
+            <!-- 3. BOTÓN "+INFO" INTERACTIVO -->
+            <a-entity id="btn-mas-info" position="0.6 -0.1 0" rotation="0 -15 0" class="raycastable">
+                <a-plane width="1.0" height="0.3" color="#2196F3" radius="0.02"></a-plane>
+                <a-text value="+info" align="center" color="#FFFFFF" width="2" position="0 0 0.01"></a-text>
+            </a-entity>
+
         </a-entity>
 
-        <!-- probando: lacmara se desvincula del objeto. El usuario puede caminar alrededor -->
-        <a-entity camera look-controls></a-entity>
+        <!-- CÁMARA Y CURSOR (Para interacciones táctiles en pantalla) -->
+        <a-entity camera look-controls>
+            <a-cursor 
+                raycaster="objects: .raycastable"
+                fuse="false"
+                color="#FFD700" 
+                scale="0.8 0.8 0.8">
+            </a-cursor>
+        </a-entity>
         
     </a-scene>
+
+    <script>
+        // Función para reproducir el audio grabado
+        function reproducirAudio() {
+            var audio = document.getElementById('audio-stand');
+            if (audio) {
+                audio.play();
+            }
+        }
+
+        // Lógica de navegación del botón +info
+        document.addEventListener('DOMContentLoaded', function () {
+            var botonInfo = document.getElementById('btn-mas-info');
+            
+            botonInfo.addEventListener('click', function () {
+                // Redirige al siguiente stand (por ejemplo, de year3.html a year4.html)
+                window.location.href = "year4.html"; 
+            });
+        });
+    </script>
 </body>
 </html>
