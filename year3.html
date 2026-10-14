@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Multimedial RA - 3er Año</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <style>
+        .ar-overlay {
+            position: absolute;
+            bottom: 20 px;
+            left: 50 %;
+            transform: translateX(-50%);
+            z-index: 999;
+            font-family: Arial, sans-serif;
+        }
+        .btn-audio {
+            background-color: #ff5722;
+            color: white;
+            border: none;
+            padding: 12 px 24 px;
+            font-size: 16 px;
+            border-radius: 20 px;
+            cursor: pointer;
+            box-shadow: 0 4 px 6 px rgba (0,0,0,0.3);
+        }
+    </style>
+</head>
+<body style="margin: 0; overflow: hidden;">
+
+    <div class="ar-overlay">
+        <button class="btn-audio" onclick="reproducirAudio()">🔊 Escuchar a Mazairita</button>
+    </div>
+
+    <a-scene webxr="optionalFeatures: hit-test, local-floor;" arjs="sourceType: webcam; debugUIEnabled: false;">
+        <a-assets>
+            <a-asset-item id="Mazairita" src="MAZAIRITA-GIRO.glb"></a-asset-item>
+            <audio id="audio-stand" src="audio/year3.mp3" preload="auto"></audio>
+        </a-assets>
+
+        <a-light type="ambient" intensity="0.9"></a-light>
+
+        <a-entity id="contenedor-experiencia" position="0 0 -2">
+            <a-entity 
+                gltf-model="#Mazairita" 
+                scale="0.2 0.2 0.2"
+                position="-0.8 0 0"
+                rotation="0 30 0">
+            </a-entity>
+
+            <a-entity position="0.6 0.5 0" rotation="0 -15 0">
+                <a-plane width="2.2" height="1.1" color="#111111" opacity="0.85" radius="0.05"></a-plane>
+                <a-text 
+                    value="3ER ANO:\n- RMCL\n- Morfologia Visual y Sonora\n- Sistemas Multimediales" 
+                    align="center" 
+                    color="#FFFFFF" 
+                    width="1.8" 
+                    position="0 0 0.01">
+                </a-text>
+            </a-entity>
+
+            <a-entity id="btn-mas-info" position="0.6 -0.2 0" rotation="0 -15 0" class="raycastable">
+                <a-plane width="1.0" height="0.3" color="#2196F3" radius="0.02"></a-plane>
+                <a-text value="+info" align="center" color="#FFFFFF" width="2" position="0 0 0.01"></a-text>
+            </a-entity>
+        </a-entity>
+
+        <a-entity camera look-controls>
+            <a-cursor raycaster="objects: .raycastable" fuse="false" color="#FFD700" scale="0.8 0.8 0.8"></a-cursor>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        function reproducirAudio() {
+            var audio = document.getElementById('audio-stand');
+            if (audio) audio.play();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('btn-mas-info').addEventListener('click', function () {
+                window.location.href = "year4.html"; 
+            });
+        });
+    </script>
+</body>
+</html>
