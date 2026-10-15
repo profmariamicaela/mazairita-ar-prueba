@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Mazairita AR - Bienvenida</title>
+    
+    <!-- A-Frame Library -->
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    
+    <!-- Librería para controlar animaciones internas del archivo .GLB -->
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+
+    <style>
+        /* Botón 2D superpuesto para iniciar experiencia con audio */
+        .ar-overlay {
+            position: absolute;
+            bottom: 25 px;
+            left: 50 %;
+            transform: translate X (-50 %);
+            z-index: 999;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .btn-audio {
+            background-color: #ff5722;
+            color: white;
+            border: none;
+            padding: 14 px 28 px;
+            font-size: 16 px;
+            font-weight: bold;
+            border-radius: 25 px;
+            cursor: pointer;
+            box-shadow: 0 4 px 10 px rgba (0,0,0,0.4);
+            transition: background 0.3s ease;
+        }
+        .btn-audio:active {
+            background-color: #e64a19;
+        }
+    </style>
+</head>
+<body style="margin: 0; overflow: hidden;">
+
+    <!-- Botón para disparar simultáneamente voz y animación de Mazairita -->
+    <div class="ar-overlay">
+        <button class="btn-audio" onclick="iniciarSincronizacion()">▶ Escuchar a Mazairita</button>
+    </div>
+
+    <!-- Escena A-Frame: Desactivados los botones VR/AR (vr-mode-ui="enabled: false") -->
+    <a-scene 
+        embedded 
+        vr-mode-ui="enabled: false" 
+        webxr="optionalFeatures: hit-test, local-floor;" 
+        arjs="sourceType: webcam; debugUIEnabled: false;">
+        
+        <!-- Carga de Recursos -->
+        <a-assets>
+            <!-- Modelo 3D de Mazairita -->
+            <a-asset-item id="Mazairita" src="MAZAIRITA-GIRO.glb"></a-asset-item>
+            
+            <!-- Audio de Bienvenida -->
+            <audio id="audio-stand" src="audio/bienvenida.mp3" preload="auto"></audio>
+        </a-assets>
+
+        <!-- Luz Ambiental -->
+        <a-light type="ambient" intensity="0.9"></a-light>
+
+        <!-- Contenedor General (Emplazado a 2 metros) -->
+        <a-entity id="contenedor-experiencia" position="0 0 -2">
+            
+            <!-- 1. PERSONAJE 3D CON ANIMACIÓN (animation-mixer) -->
+            <a-entity 
+                id="modelo-mazairita"
+                gltf-model="#Mazairita" 
+                scale="0.2 0.2 0.2"
+                position="-0.8 0 0"
+                rotation="0 30 0"
+                animation-mixer="clip: *; timeScale: 0;"> 
+                <!-- timeScale: 0 la mantiene pausada hasta hacer clic -->
+            </a-entity>
+
+            <!-- 2. PANEL DE TEXTO DE BIENVENIDA -->
+            <a-entity position="0.6 0.5 0" rotation="0 -15 0">
+                <a-plane width="2.2" height="1.1" color="#111111" opacity="0.85" radius="0.05"></a-plane>
+                <a-text 
+                    value="¡BIENVENIDO!\n\nEspecialidad de\nProduccion Multimedial" 
+                    align="center" 
+                    color="#FFFFFF" 
+                    width="1.8" 
+                    position="0 0 0.01">
+                </a-text>
+            </a-entity>
+
+            <!-- 3. BOTÓN +INFO INTERACTIVO POR TOQUE TÁCTIL -->
+            <a-entity id="btn-mas-info" position="0.6 -0.2 0" rotation="0 -15 0" class="raycastable">
+                <a-plane width="1.0" height="0.3" color="#2196F3" radius="0.02"></a-plane>
+                <a-text value="+info" align="center" color="#FFFFFF" width="2" position="0 0 0.01"></a-text>
+            </a-entity>
+
+        </a-entity>
+
+        <!-- CÁMARA (Se removió el <a-cursor> para quitar el punto amarillo) -->
+        <a-entity camera look-controls raycaster="objects: .raycastable" cursor="rayOrigin: mouse"></a-entity>
+        
+    </a-scene>
+
+    <script>
+        // Sincroniza la voz grabada con la animación del render 3D
+        function iniciarSincronizacion() {
+            var audio = document.getElementById('audio-stand');
+            var modelo = document.getElementById('modelo-mazairita');
+
+            if (audio) {
+                // Reinicia el audio si ya estaba sonando
+                audio.currentTime = 0;
+                audio.play();
+
+                // Activa la velocidad normal de la animación 3D (timeScale = 1)
+                modelo.setAttribute('animation-mixer', 'timeScale', 1);
+
+                // Cuando el audio termina, se pausa la animación del render 3D
+                audio.onended = function() {
+                    modelo.setAttribute('animation-mixer', 'timeScale', 0);
+                };
+            }
+        }
+
+        // Navegación al tocar el botón +info en la pantalla del celular
+        document.addEventListener('DOMContentLoaded', function () {
+            var botonInfo = document.getElementById('btn-mas-info');
+            
+            botonInfo.addEventListener('click', function () {
+                window.location.href = "year3.html"; 
+            });
+        });
+    </script>
+</body>
+</html>
