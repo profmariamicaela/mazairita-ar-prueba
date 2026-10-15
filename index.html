@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Mazairita AR - Bienvenida</title>
     
-    <!-- Librería A-Frame Base -->
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <!-- Librería aframe-extras para animaciones GLTF/GLB -->
+    <!-- Librería A-Frame Base (v1.3.0 para máxima compatibilidad con AR.js) -->
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <!-- Librería AR.js para renderizado directo de cámara web -->
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <!-- Librería para control de animaciones GLB -->
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
 
     <style>
@@ -18,85 +20,93 @@
             height: 100%;
             overflow: hidden;
             font-family: Arial, sans-serif;
-            background-color: #000;
+            background-color: #ffffff;
         }
 
-        /* Pantalla inicial de bienvenida */
+        /* Pantalla de Inicio - Estética Mazairita (Fondo Blanco / Violeta RGB 59, 76, 155) */
         #pantalla-inicio {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+            background-color: #ffffff;
             z-index: 9999;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: white;
+            color: #3b4c9b; /* RGB(59, 76, 155) */
             text-align: center;
             padding: 20px;
             box-sizing: border-box;
         }
 
         #pantalla-inicio h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            color: #ff5722;
+            font-size: 26px;
+            margin-bottom: 8px;
+            color: rgb(59, 76, 155);
+            font-weight: bold;
         }
 
         #pantalla-inicio p {
-            font-size: 15px;
-            color: #ccc;
-            margin-bottom: 30px;
-            max-width: 300px;
+            font-size: 16px;
+            color: #555555;
+            margin-bottom: 35px;
+            max-width: 320px;
         }
 
         .btn-iniciar {
-            background-color: #ff5722;
-            color: white;
+            background-color: rgb(59, 76, 155);
+            color: #ffffff;
             border: none;
-            padding: 16px 32px;
+            padding: 16px 36px;
             font-size: 18px;
             font-weight: bold;
             border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.4);
+            box-shadow: 0 4px 15px rgba(59, 76, 155, 0.35);
+            transition: transform 0.2s, background-color 0.2s;
         }
 
-        /* Pantalla de carga */
+        .btn-iniciar:active {
+            transform: scale(0.95);
+            background-color: #2d3b7c;
+        }
+
+        /* Pantalla de Carga intermedia */
         #pantalla-carga {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #111111;
+            background-color: #ffffff;
             z-index: 9998;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: white;
+            color: rgb(59, 76, 155);
             text-align: center;
             padding: 20px;
             box-sizing: border-box;
         }
 
         #pantalla-carga h2 {
-            font-size: 20px;
-            color: #2196F3;
-            margin-bottom: 15px;
+            font-size: 22px;
+            color: rgb(59, 76, 155);
+            margin-bottom: 12px;
         }
 
         .loader {
-            border: 4px solid #333;
-            border-top: 4px solid #2196F3;
+            border: 4px solid #e0e0e0;
+            border-top: 4px solid rgb(59, 76, 155);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             animation: spin 1s linear infinite;
+            margin-top: 15px;
         }
 
         @keyframes spin {
@@ -104,7 +114,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Ocultar botones nativos de VR/AR */
+        /* Ocultar botones e interfaces VR predeterminadas */
         .a-enter-vr, .a-enter-ar {
             display: none !important;
         }
@@ -112,24 +122,25 @@
 </head>
 <body>
 
-    <!-- 1. Pantalla de inicio -->
+    <!-- 1. Pantalla Inicial (Violeta + Blanco) -->
     <div id="pantalla-inicio">
         <h1>Producción Multimedial</h1>
         <p>Especialidad Técnica N° 20 "Carolina Muzilli"</p>
         <button class="btn-iniciar" id="btn-comenzar">🚀 INICIAR EXPERIENCIA AR</button>
     </div>
 
-    <!-- 2. Pantalla de carga intermedia -->
+    <!-- 2. Pantalla de Carga mientras solicita permisos de cámara -->
     <div id="pantalla-carga" style="display: none;">
         <h2>Bienvenido/a a la ET 20 - Carolina Muzzilli</h2>
-        <p style="color: #aaa; font-size: 14px;">Iniciando Mazairita y entorno AR...</p>
+        <p style="color: #666; font-size: 14px;">Abriendo cámara...</p>
         <div class="loader"></div>
     </div>
 
-    <!-- Escena WebXR -->
+    <!-- Escena A-Frame con AR.js (Directo a la cámara sin VR) -->
     <a-scene 
-        webxr="optionalFeatures: hit-test, local-floor;"
-        vr-mode-ui="enabled: false">
+        embedded 
+        vr-mode-ui="enabled: false"
+        arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;">
         
         <a-assets>
             <a-asset-item id="Mazairita" src="MAZAIRITA-VERSION-FINAL-GIRO-UNIFICADO.glb"></a-asset-item>
@@ -137,24 +148,24 @@
         </a-assets>
 
         <a-light type="ambient" intensity="1.2"></a-light>
-        <a-light type="directional" position="1 4 1" intensity="0.5"></a-light>
+        <a-light type="directional" position="0 2 1" intensity="0.6"></a-light>
 
-        <!-- Contenedor 3D Emplazado -->
-        <a-entity id="contenedor-experiencia" position="0 -1 -1.5">
+        <!-- CONTENEDOR GENERAL: Centrado directamente en la vista de la cámara -->
+        <a-entity id="contenedor-experiencia" position="0 -0.2 -1.8">
             
-            <!-- MODELO MAZAIRITA CON AUTO-ACTIVADOR DE ANIMACIÓN (reproductor-animacion) -->
+            <!-- 1. PERSONAJE MAZAIRITA CON AUTO-ACTIVADOR DE ANIMACIÓN -->
             <a-entity 
                 id="modelo-mazairita"
                 gltf-model="#Mazairita" 
-                scale="0.18 0.18 0.18"
-                position="-0.6 0 0"
-                rotation="0 30 0"
+                scale="0.16 0.16 0.16"
+                position="-0.55 0 0"
+                rotation="0 25 0"
                 reproductor-animacion>
             </a-entity>
 
-            <!-- PANEL DE TEXTO -->
-            <a-entity position="0.6 0.6 0" rotation="0 -20 0">
-                <a-plane width="1.8" height="0.9" color="#111111" opacity="0.85" radius="0.04"></a-plane>
+            <!-- 2. PANEL DE TEXTO DE BIENVENIDA -->
+            <a-entity position="0.55 0.15 0" rotation="0 -15 0">
+                <a-plane width="1.8" height="0.9" color="#3b4c9b" opacity="0.9" radius="0.04"></a-plane>
                 <a-text 
                     value="¡BIENVENIDO!\n\nEspecialidad de\nProduccion Multimedial" 
                     align="center" 
@@ -164,39 +175,33 @@
                 </a-text>
             </a-entity>
 
-            <!-- BOTÓN +INFO -->
-            <a-entity id="btn-mas-info" position="0.6 0.05 0" rotation="0 -20 0" class="raycastable">
-                <a-plane width="0.9" height="0.3" color="#2196F3" radius="0.03"></a-plane>
-                <a-text value="+info" align="center" color="#FFFFFF" width="2" position="0 0 0.01"></a-text>
+            <!-- 3. BOTÓN +INFO -->
+            <a-entity id="btn-mas-info" position="0.55 -0.45 0" rotation="0 -15 0" class="raycastable">
+                <a-plane width="0.9" height="0.3" color="#ffffff" radius="0.03"></a-plane>
+                <a-text value="+info" align="center" color="#3b4c9b" width="2" position="0 0 0.01"></a-text>
             </a-entity>
 
         </a-entity>
 
-        <!-- CÁMARA LIBRE -->
+        <!-- CÁMARA (Limpia sin el punto amarillo, clic táctil directo en la pantalla) -->
         <a-entity camera look-controls cursor="rayOrigin: mouse" raycaster="objects: .raycastable"></a-entity>
         
     </a-scene>
 
     <script>
-        // COMPONENTE PERSONALIZADO: Fuerza la reproducción de cualquier animación interna del .GLB
+        // Detector y activador automático para la animación interna del GLB
         AFRAME.registerComponent('reproductor-animacion', {
             init: function () {
                 var el = this.el;
                 el.addEventListener('model-loaded', function () {
                     var model = el.getObject3D('mesh');
                     if (model && model.animations && model.animations.length > 0) {
-                        // Toma el nombre exacto de la primera animación que encuentre en el archivo GLB
                         var nombreAnimacion = model.animations[0].name;
-                        
-                        // Le asigna el mixer a A-Frame dinámicamente con ese nombre
                         el.setAttribute('animation-mixer', {
                             clip: nombreAnimacion,
                             loop: 'repeat',
                             timeScale: 1
                         });
-                        console.log("Animación detectada e iniciada:", nombreAnimacion);
-                    } else {
-                        console.warn("El archivo GLB se cargó pero no contiene clips de animación embebidos.");
                     }
                 });
             }
@@ -208,24 +213,32 @@
         var sceneEl = document.querySelector('a-scene');
 
         btnComenzar.addEventListener('click', function () {
+            // 1. Cambia las pantallas
             pantallaInicio.style.display = 'none';
             pantallaCarga.style.display = 'flex';
 
-            if (sceneEl.is('vr-mode') === false) {
-                sceneEl.enterVR();
-            }
-
+            // 2. Reproduce el audio de bienvenida
             var audio = document.getElementById('audio-stand');
             if (audio) {
                 audio.currentTime = 0;
                 audio.play();
             }
 
-            setTimeout(function() {
-                pantallaCarga.style.display = 'none';
-            }, 1200);
+            // 3. Ocasiona el cierre del cartel cuando la cámara finaliza su inicio
+            if (sceneEl.hasLoaded) {
+                ocultarCarga();
+            } else {
+                sceneEl.addEventListener('loaded', ocultarCarga);
+            }
         });
 
+        function ocultarCarga() {
+            setTimeout(function() {
+                pantallaCarga.style.display = 'none';
+            }, 800);
+        }
+
+        // Navegación al tocar el botón +info
         document.getElementById('btn-mas-info').addEventListener('click', function () {
             window.location.href = "year3.html"; 
         });
