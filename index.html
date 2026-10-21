@@ -151,7 +151,7 @@
         <div class="loader"></div>
     </div>
 
-    <!-- Escena A-Frame con renderizador transparente forzado -->
+    <!-- Escena A-Frame -->
     <a-scene 
         embedded
         renderer="alpha: true; antialias: true; colorManagement: true;"
@@ -166,7 +166,7 @@
         <a-light type="ambient" intensity="1.2"></a-light>
         <a-light type="directional" position="0 2 1" intensity="0.6"></a-light>
 
-        <!-- CONTENEDOR GENERAL: Elevado en Y para que no quede cerca del piso (Y: 0.2) -->
+        <!-- CONTENEDOR GENERAL: Elevado en Y a altura media (0.2) -->
         <a-entity id="contenedor-experiencia" position="0 0.2 -1.8">
             
             <!-- 1. PERSONAJE MAZAIRITA ANIMADO -->
@@ -176,7 +176,7 @@
                 scale="0.16 0.16 0.16"
                 position="-0.55 0 0"
                 rotation="0 25 0"
-                reproductor-sincronizado>
+                reproductor-animacion>
             </a-entity>
 
             <!-- 2. PANEL DE TEXTO DE BIENVENIDA -->
@@ -188,3 +188,94 @@
                     color="#FFFFFF" 
                     width="1.6" 
                     position="0 0 0.01">
+                </a-text>
+            </a-entity>
+
+            <!-- 3. BOTÓN +INFO -->
+            <a-entity id="btn-mas-info" position="0.55 -0.45 0" rotation="0 -15 0" class="raycastable">
+                <a-plane width="0.9" height="0.3" color="#ffffff" radius="0.03"></a-plane>
+                <a-text value="+info" align="center" color="#3b4c9b" width="2" position="0 0 0.01"></a-text>
+            </a-entity>
+
+        </a-entity>
+
+        <!-- CÁMARA LIBRE -->
+        <a-entity camera look-controls cursor="rayOrigin: mouse" raycaster="objects: .raycastable"></a-entity>
+        
+    </a-scene>
+
+    <script>
+        // Componente para animar el modelo GLB al cargar
+        AFRAME.registerComponent('reproductor-animacion', {
+            init: function () {
+                var el = this.el;
+                el.addEventListener('model-loaded', function () {
+                    var model = el.getObject3D('mesh');
+                    if (model && model.animations && model.animations.length > 0) {
+                        var nombreAnimacion = model.animations[0].name;
+                        el.setAttribute('animation-mixer', {
+                            clip: nombreAnimacion,
+                            loop: 'repeat',
+                            timeScale: 1
+                        });
+                    }
+                });
+            }
+        });
+
+        // Limpia cualquier estilo/margen que AR.js aplique dinámicamente
+        function limpiarFondoYMargenes() {
+            document.body.style.margin = '0px';
+            document.body.style.padding = '0px';
+            document.body.style.overflow = 'hidden';
+            
+            var video = document.querySelector('video');
+            if (video) {
+                video.style.margin = '0px';
+                video.style.padding = '0px';
+                video.style.width = '100vw';
+                video.style.height = '100vh';
+                video.style.objectFit = 'cover';
+            }
+        }
+
+        // Lógica simplificada e infalible para el clic de inicio
+        document.addEventListener('DOMContentLoaded', function () {
+            var btnComenzar = document.getElementById('btn-comenzar');
+            var pantallaInicio = document.getElementById('pantalla-inicio');
+            var pantallaCarga = document.getElementById('pantalla-carga');
+            var audio = document.getElementById('audio-bienvenida');
+
+            btnComenzar.addEventListener('click', function () {
+                // 1. Ocultar pantalla de inicio
+                pantallaInicio.style.display = 'none';
+                pantallaCarga.style.display = 'flex';
+
+                limpiarFondoYMargenes();
+
+                // 2. Reproducir audio BIENVENIDA.mp3 (1 sola vez) aprovechando la interacción del usuario
+                if (audio) {
+                    audio.loop = false;
+                    audio.currentTime = 0;
+                    audio.play().catch(function(err) {
+                        console.log("Error al reproducir audio:", err);
+                    });
+                }
+
+                // 3. Ocultar pantalla de carga tras un breve instante
+                setTimeout(function() {
+                    pantallaCarga.style.display = 'none';
+                    limpiarFondoYMargenes();
+                }, 1000);
+            });
+        });
+
+        window.addEventListener('resize', limpiarFondoYMargenes);
+
+        // Navegación al tocar +info
+        document.getElementById('btn-mas-info').addEventListener('click', function () {
+            window.location.href = "year3.html"; 
+        });
+    </script>
+</body>
+</html>
