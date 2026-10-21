@@ -13,28 +13,29 @@
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
 
     <style>
-        /* Asegura que el contenedor principal ocupe exactamente la pantalla completa */
+        /* Corrección total del fondo blanco y reseteo de márgenes */
         html, body {
             margin: 0 !important;
             padding: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
+            width: 100% !important;
+            height: 100% !important;
             overflow: hidden !important;
             font-family: Arial, sans-serif;
             background-color: #000000 !important;
         }
 
-        /* Fuerza al video de la cámara y al canvas de A-Frame a ocupar todo el fondo sin bordes */
-        .a-canvas, video, #arjs-video, canvas {
+        /* Fuerza al canvas de A-Frame y al video de la cámara a ocupar exactamente toda la pantalla sin barras */
+        .a-canvas, video, #arjs-video, canvas, .a-fullscreen {
             position: absolute !important;
             top: 0 !important;
             left: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
+            width: 100% !important;
+            height: 100% !important;
             object-fit: cover !important;
             margin: 0 !important;
             padding: 0 !important;
             border: none !important;
+            background-color: transparent !important;
         }
 
         /* Pantalla Inicial - Estética Mazairita */
@@ -129,7 +130,7 @@
         }
 
         /* Ocultar interfaces VR/AR predeterminadas */
-        .a-enter-vr, .a-enter-ar {
+        .a-enter-vr, .a-enter-ar, .a-orientation-modal {
             display: none !important;
         }
     </style>
@@ -152,21 +153,21 @@
 
     <!-- Escena A-Frame con renderizador transparente forzado -->
     <a-scene 
-        embedded 
+        embedded
         renderer="alpha: true; antialias: true; colorManagement: true;"
         vr-mode-ui="enabled: false"
         arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;">
         
         <a-assets>
             <a-asset-item id="Mazairita" src="MAZAIRITA-VERSION-FINAL-GIRO-UNIFICADO.glb"></a-asset-item>
-            <audio id="audio-stand" src="audio/bienvenida.mp3" preload="auto"></audio>
+            <audio id="audio-bienvenida" src="BIENVENIDA.mp3" preload="auto"></audio>
         </a-assets>
 
         <a-light type="ambient" intensity="1.2"></a-light>
         <a-light type="directional" position="0 2 1" intensity="0.6"></a-light>
 
-        <!-- CONTENEDOR GENERAL: Emplazado frente a la cámara -->
-        <a-entity id="contenedor-experiencia" position="0 -0.2 -1.8">
+        <!-- CONTENEDOR GENERAL: Elevado en Y para que no quede cerca del piso (Y: 0.2) -->
+        <a-entity id="contenedor-experiencia" position="0 0.2 -1.8">
             
             <!-- 1. PERSONAJE MAZAIRITA ANIMADO -->
             <a-entity 
@@ -175,7 +176,7 @@
                 scale="0.16 0.16 0.16"
                 position="-0.55 0 0"
                 rotation="0 25 0"
-                reproductor-animacion>
+                reproductor-sincronizado>
             </a-entity>
 
             <!-- 2. PANEL DE TEXTO DE BIENVENIDA -->
@@ -187,27 +188,3 @@
                     color="#FFFFFF" 
                     width="1.6" 
                     position="0 0 0.01">
-                </a-text>
-            </a-entity>
-
-            <!-- 3. BOTÓN +INFO -->
-            <a-entity id="btn-mas-info" position="0.55 -0.45 0" rotation="0 -15 0" class="raycastable">
-                <a-plane width="0.9" height="0.3" color="#ffffff" radius="0.03"></a-plane>
-                <a-text value="+info" align="center" color="#3b4c9b" width="2" position="0 0 0.01"></a-text>
-            </a-entity>
-
-        </a-entity>
-
-        <!-- CÁMARA LIBRE -->
-        <a-entity camera look-controls cursor="rayOrigin: mouse" raycaster="objects: .raycastable"></a-entity>
-        
-    </a-scene>
-
-    <script>
-        // Detector y activador automático para la animación del GLB
-        AFRAME.registerComponent('reproductor-animacion', {
-            init: function () {
-                var el = this.el;
-                el.addEventListener('model-loaded', function () {
-                    var model = el.getObject3D('mesh');
-                    if (model && model.animations && model.animations
