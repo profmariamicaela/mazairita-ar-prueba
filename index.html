@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mazairita AR - Bienvenida</title>
     
     <!-- Librería A-Frame Base -->
@@ -13,28 +13,29 @@
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
 
     <style>
-        /* Transparencia total en el lienzo para mostrar el video de la cámara */
+        /* Asegura que el contenedor principal ocupe exactamente la pantalla completa */
         html, body {
-    margin: 0;
-    padding: 0;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    font-family: Arial, sans-serif;
-    background-color: #000000 !important; /* Evita destellos blancos de fondo */
-}
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            overflow: hidden !important;
+            font-family: Arial, sans-serif;
+            background-color: #000000 !important;
+        }
 
-/* Fuerza tanto al canvas de A-Frame como al video de AR.js a ocupar todo el viewport */
-.a-canvas, video, #arjs-video {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    object-fit: cover !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
+        /* Fuerza al video de la cámara y al canvas de A-Frame a ocupar todo el fondo sin bordes */
+        .a-canvas, video, #arjs-video, canvas {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            object-fit: cover !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+        }
 
         /* Pantalla Inicial - Estética Mazairita */
         #pantalla-inicio {
@@ -87,7 +88,7 @@
             background-color: #2d3b7c;
         }
 
-        /* Pantalla de Carga semitransparente (sin fondo blanco) */
+        /* Pantalla de Carga semitransparente */
         #pantalla-carga {
             position: fixed;
             top: 0;
@@ -142,17 +143,17 @@
         <button class="btn-iniciar" id="btn-comenzar">🚀 INICIAR EXPERIENCIA AR</button>
     </div>
 
-    <!-- 2. Pantalla de Carga intermedia sin fondo blanco -->
+    <!-- 2. Pantalla de Carga intermedia -->
     <div id="pantalla-carga" style="display: none;">
         <h2>Bienvenido/a a la ET 20 - Carolina Muzzilli</h2>
         <p style="color: #ccc; font-size: 14px;">Iniciando cámara...</p>
         <div class="loader"></div>
     </div>
 
-    <!-- Escena A-Frame con fondo transparente explícito -->
+    <!-- Escena A-Frame con renderizador transparente forzado -->
     <a-scene 
         embedded 
-        background="transparent: true"
+        renderer="alpha: true; antialias: true; colorManagement: true;"
         vr-mode-ui="enabled: false"
         arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;">
         
@@ -209,50 +210,4 @@
                 var el = this.el;
                 el.addEventListener('model-loaded', function () {
                     var model = el.getObject3D('mesh');
-                    if (model && model.animations && model.animations.length > 0) {
-                        var nombreAnimacion = model.animations[0].name;
-                        el.setAttribute('animation-mixer', {
-                            clip: nombreAnimacion,
-                            loop: 'repeat',
-                            timeScale: 1
-                        });
-                    }
-                });
-            }
-        });
-
-        var btnComenzar = document.getElementById('btn-comenzar');
-        var pantallaInicio = document.getElementById('pantalla-inicio');
-        var pantallaCarga = document.getElementById('pantalla-carga');
-        var sceneEl = document.querySelector('a-scene');
-
-        btnComenzar.addEventListener('click', function () {
-            pantallaInicio.style.display = 'none';
-            pantallaCarga.style.display = 'flex';
-
-            var audio = document.getElementById('audio-stand');
-            if (audio) {
-                audio.currentTime = 0;
-                audio.play();
-            }
-
-            if (sceneEl.hasLoaded) {
-                ocultarCarga();
-            } else {
-                sceneEl.addEventListener('loaded', ocultarCarga);
-            }
-        });
-
-        function ocultarCarga() {
-            setTimeout(function() {
-                pantallaCarga.style.display = 'none';
-            }, 800);
-        }
-
-        // Navegación al tocar +info
-        document.getElementById('btn-mas-info').addEventListener('click', function () {
-            window.location.href = "year3.html"; 
-        });
-    </script>
-</body>
-</html>
+                    if (model && model.animations && model.animations
