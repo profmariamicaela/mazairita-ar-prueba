@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <title>Experiencia de RA</title>
+    
+    <!-- Librerías de A-Frame y MindAR -->
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+    
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 
+      imageTargetSrc: Ruta al archivo .mind compilado en el Paso 1.
+      uiLoading: no (oculta pantallas de carga por defecto si lo deseas).
+    -->
+    <a-scene 
+      mindar-image="imageTargetSrc: ./targets.mind; filterMinCF:0.0001; filterBeta: 0.001;" 
+      color-space="sRGB" 
+      renderer="colorManagement: true, physicallyCorrectLights" 
+      vr-mode-ui="enabled: false" 
+      device-orientation-permission-ui="enabled: false">
+      
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <!-- targetIndex: 0 corresponde a la primera imagen procesada en targets.mind -->
+      <a-entity mindar-image-target="targetIndex: 0">
+        
+        <!-- 
+          Fondo rectangular negro:
+          - width/height ajustan la escala del plano.
+          - material="color: black" da el fondo negro.
+        -->
+        <a-plane 
+          color="#000000" 
+          width="1.8" 
+          height="0.6" 
+          position="0 0 0.01" 
+          opacity="0.9">
+        </a-plane>
+
+        <!-- 
+          Texto en blanco sobre el rectángulo:
+          - align="center" centra el texto.
+          - color="white" texto blanco.
+        -->
+        <a-text 
+          value="EJEMPLO DE EXPERIENCIA DE RA, PONE ACA LO QUE NECESITAS" 
+          color="#FFFFFF" 
+          align="center" 
+          width="1.6" 
+          wrap-count="25" 
+          position="0 0 0.02">
+        </a-text>
+
+      </a-entity>
+    </a-scene>
+  </body>
+</html>
