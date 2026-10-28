@@ -3,175 +3,216 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Expo E.T. N° 20 Carolina Muzilli - Producción Multimedia</title>
-  <!-- Librerías de A-Frame y AR.js para Realidad Aumentada Web -->
-  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+  <title>Expo E.T. N° 20 Carolina Muzilli - Producción Multimedial</title>
+  
+  <!-- Carga del componente de Google model-viewer para WebAR directa -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* PALETA DE COLORES UNIFICADA
+       Fondo principal: #0d1117 (Azul noche oscuro)
+       Acento primario: #00e5ff (Cian neón multimedial)
+       Acento secundario/Éxito: #00b0ff (Azul brillante)
+       Tarjetas y modales: #161b22 (Gris azulado con transparencia)
+       Texto principal: #f0f6fc
+    */
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
 
-    /* Pantalla de Inicio / Bienvenida */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0d1117;
+      color: #f0f6fc;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* Pantalla de Bienvenida */
     #screen-welcome {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #1e1e2f, #0f0f1a);
-      color: #ffffff;
+      inset: 0;
+      background: radial-gradient(circle at center, #1f293d 0%, #0d1117 100%);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
-      padding: 20px;
-      box-sizing: border-box;
-      z-index: 10000;
+      padding: 24px;
+      z-index: 1000;
     }
 
     #screen-welcome h1 {
-      font-size: 24px;
-      margin-bottom: 10px;
-      color: #00d2ff;
+      font-size: 22px;
+      margin: 0 0 8px 0;
+      color: #00e5ff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     #screen-welcome h2 {
       font-size: 16px;
       font-weight: 400;
-      margin-bottom: 30px;
-      color: #cccccc;
+      margin: 0 0 24px 0;
+      color: #8b949e;
     }
 
-    .btn-start {
-      background: #00d2ff;
-      color: #0f0f1a;
+    .btn-main {
+      background: linear-gradient(135deg, #00e5ff 0%, #0088ff 100%);
+      color: #0d1117;
       border: none;
-      padding: 16px 32px;
-      font-size: 18px;
-      font-weight: bold;
-      border-radius: 50px;
+      padding: 16px 36px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 30px;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);
-      transition: transform 0.2s ease;
+      box-shadow: 0 4px 20px rgba(0, 229, 255, 0.3);
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .btn-start:active {
-      transform: scale(0.95);
+    .btn-main:active {
+      transform: scale(0.96);
+      box-shadow: 0 2px 10px rgba(0, 229, 255, 0.2);
     }
 
-    /* Interfaz superpuesta durante la RA */
+    /* Contenedor del Modelo 3D / Visor RA */
+    model-viewer {
+      width: 100vw;
+      height: 100vh;
+      background-color: #0d1117;
+      --poster-color: transparent;
+    }
+
+    /* Botón flotante para proyectar RA en el piso/espacio */
+    .ar-button {
+      background-color: #00e5ff;
+      color: #0d1117;
+      border-radius: 20px;
+      border: none;
+      padding: 12px 24px;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-weight: bold;
+      z-index: 99;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    /* Interfaz de Texto y Botones Superpuestos */
     #ar-ui {
       position: fixed;
-      bottom: 20px;
+      bottom: 24px;
       left: 50%;
       transform: translateX(-50%);
-      width: 90%;
-      max-width: 400px;
-      z-index: 9999;
+      width: calc(100% - 32px);
+      max-width: 480px;
+      z-index: 500;
       display: none;
       flex-direction: column;
       align-items: center;
     }
 
     .caption-card {
-      background: rgba(15, 15, 26, 0.85);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #ffffff;
-      padding: 15px 20px;
-      border-radius: 15px;
+      background: rgba(22, 27, 34, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      color: #f0f6fc;
+      padding: 18px 20px;
+      border-radius: 16px;
       text-align: center;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       width: 100%;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     }
 
     .caption-card p {
       margin: 0;
       font-size: 15px;
-      line-height: 1.4;
+      line-height: 1.5;
     }
 
+    /* Grupo de Botones de Opciones (SI / NO) */
     .options-group {
       display: flex;
-      gap: 15px;
+      gap: 12px;
       width: 100%;
-      justify-content: center;
     }
 
     .btn-option {
       flex: 1;
-      padding: 12px 20px;
-      font-size: 16px;
-      font-weight: bold;
-      border: none;
-      border-radius: 25px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
 
     .btn-yes {
-      background-color: #00e676;
-      color: #000;
+      background: #00e5ff;
+      color: #0d1117;
+    }
+
+    .btn-yes:active {
+      background: #00b0ff;
     }
 
     .btn-no {
-      background-color: #ff5252;
-      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+      color: #f0f6fc;
+    }
+
+    .btn-no:active {
+      background: rgba(255, 255, 255, 0.15);
     }
   </style>
 </head>
 <body>
 
-  <!-- 1. Pantalla Inicial y Permisos -->
+  <!-- 1. Pantalla Inicial -->
   <div id="screen-welcome">
     <h1>Escuela Técnica N° 20 D.E. 20<br>"Carolina Muzzilli"</h1>
-    <h2>Especialidad: Producción Multimedia</h2>
-    <p>Te damos la bienvenida a la Expo. Haz clic abajo para iniciar la experiencia en Realidad Aumentada.</p>
-    <button class="btn-start" onclick="startExperience()">Iniciar Experiencia</button>
+    <h2>Especialidad: Producción Multimedial</h2>
+    <button class="btn-main" onclick="startExperience()">Iniciar Experiencia</button>
   </div>
 
   <!-- Audio de bienvenida -->
   <audio id="audio-welcome" src="audio1-bienvenida.mp3" preload="auto"></audio>
 
-  <!-- 2. Interfaz de Usuario durante RA -->
+  <!-- 2. Visor 3D y Realidad Aumentada -->
+  <model-viewer 
+    id="mazairita-viewer"
+    src="mazairitaGIRO.glb" 
+    ar 
+    ar-modes="webxr scene-viewer quick-look" 
+    camera-controls 
+    auto-rotate 
+    shadow-intensity="1"
+    alt="Modelo 3D de Mazairita">
+    
+    <button slot="ar-button" class="ar-button">
+      📷 Ver en tu espacio (RA)
+    </button>
+  </model-viewer>
+
+  <!-- 3. Contenedor de Texto y Preguntas Interactivas -->
   <div id="ar-ui">
     <div class="caption-card">
-      <p id="ui-text">Cargando la voz de Mazairita...</p>
+      <p id="ui-text"></p>
     </div>
+    
     <div id="ui-buttons" class="options-group" style="display: none;">
       <button class="btn-option btn-yes" onclick="handleChoice(true)">SÍ</button>
       <button class="btn-option btn-no" onclick="handleChoice(false)">NO</button>
     </div>
   </div>
-
-  <!-- 3. Escena de Realidad Aumentada -->
-  <a-scene 
-    embedded 
-    arjs="sourceType: webcam; debugUIEnabled: false;"
-    vr-mode-ui="enabled: false">
-    
-    <a-assets>
-      <a-asset-item id="robot-model" src="mazairitaGIRO.glb"></a-asset-item>
-    </a-assets>
-
-    <!-- Marcador Hiro genérico para fijar el modelo al detectarlo -->
-    <a-marker preset="hiro">
-      <a-entity 
-        id="mazairita"
-        gltf-model="#robot-model"
-        scale="0.5 0.5 0.5"
-        position="0 0 0"
-        rotation="0 0 0"
-        animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
-      </a-entity>
-    </a-marker>
-
-    <a-entity camera></a-entity>
-  </a-scene>
 
   <script>
     const welcomeScreen = document.getElementById('screen-welcome');
@@ -180,35 +221,35 @@
     const uiButtons = document.getElementById('ui-buttons');
     const audio = document.getElementById('audio-welcome');
 
+    // Texto exacto solicitado
+    const welcomeSpeech = "¡Hola! ¡Bienvenido a la Técnica 20 “Carolina Muzilli”! Mi nombre es Mazairita y voy a acompañarte en este recorrido por la especialidad de Producción Multimedial.\n\nPara conocer cada una de las materias y descubrir todo lo que se aprende, solo tenés que escanear el código QR de cada stand.\n\n¡COMENCEMOS!";
+
     function startExperience() {
-      // Ocultar pantalla de inicio
+      // Oculta la bienvenida e interactúa con el visor
       welcomeScreen.style.display = 'none';
       arUI.style.display = 'flex';
-      uiText.innerText = "Apunta la cámara al marcador o afiche para ver a Mazairita.";
+      
+      // Muestra el texto en pantalla inmediatamente
+      uiText.innerText = welcomeSpeech;
 
-      // Iniciar audio
-      audio.play().then(() => {
-        uiText.innerText = "Escuchando a Mazairita: ¡Hola! Te doy la bienvenida a la Expo de la Muzzilli.";
-      }).catch(error => {
-        console.log("Error al reproducir audio:", error);
-        uiText.innerText = "¡Bienvenido a la Expo! (Haz clic en la pantalla si no escuchas el audio)";
+      // Reproduce el audio de bienvenida
+      audio.play().catch(error => {
+        console.log("Autoplay restringido por el navegador:", error);
       });
     }
 
-    // Evento al finalizar la reproducción del audio
+    // Al finalizar el audio, se activa la pregunta final con la paleta de colores unificada
     audio.onended = function() {
-      uiText.innerText = "¡Esperamos que disfrutes el recorrido! ¿Quieres más información sobre la orientación en Producción Multimedia?";
+      uiText.innerText = "¿Querés más información sobre la orientación?";
       uiButtons.style.display = 'flex';
     };
 
     function handleChoice(wantsMoreInfo) {
       if (wantsMoreInfo) {
-        // Redirige al PDF con la información detallada de la carrera
         window.location.href = "informacion-multimedia.pdf";
       } else {
-        // Muestra mensaje de agradecimiento e invita a seguir recorriendo la expo
         uiButtons.style.display = 'none';
-        uiText.innerText = "¡Muchas gracias! Continúa visitando la muestra de trabajos. Encontrarás más códigos QR con sorpresas e información sobre la orientación.";
+        uiText.innerText = "¡Muchas gracias! Continuá visitando la muestra de trabajos y vas a encontrar más QR con información sobre la orientación.";
       }
     }
   </script>
