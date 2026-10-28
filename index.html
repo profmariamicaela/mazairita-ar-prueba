@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Expo E.T. N° 20 Carolina Muzilli - Producción Multimedia</title>
+  <!-- Librerías de A-Frame y AR.js para Realidad Aumentada Web -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Pantalla de Inicio / Bienvenida */
+    #screen-welcome {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1e1e2f, #0f0f1a);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+      z-index: 10000;
+    }
+
+    #screen-welcome h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #00d2ff;
+    }
+
+    #screen-welcome h2 {
+      font-size: 16px;
+      font-weight: 400;
+      margin-bottom: 30px;
+      color: #cccccc;
+    }
+
+    .btn-start {
+      background: #00d2ff;
+      color: #0f0f1a;
+      border: none;
+      padding: 16px 32px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);
+      transition: transform 0.2s ease;
+    }
+
+    .btn-start:active {
+      transform: scale(0.95);
+    }
+
+    /* Interfaz superpuesta durante la RA */
+    #ar-ui {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 400px;
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .caption-card {
+      background: rgba(15, 15, 26, 0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      padding: 15px 20px;
+      border-radius: 15px;
+      text-align: center;
+      margin-bottom: 15px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .caption-card p {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .options-group {
+      display: flex;
+      gap: 15px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .btn-option {
+      flex: 1;
+      padding: 12px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+    }
+
+    .btn-yes {
+      background-color: #00e676;
+      color: #000;
+    }
+
+    .btn-no {
+      background-color: #ff5252;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. Pantalla Inicial y Permisos -->
+  <div id="screen-welcome">
+    <h1>Escuela Técnica N° 20 D.E. 20<br>"Carolina Muzzilli"</h1>
+    <h2>Especialidad: Producción Multimedia</h2>
+    <p>Te damos la bienvenida a la Expo. Haz clic abajo para iniciar la experiencia en Realidad Aumentada.</p>
+    <button class="btn-start" onclick="startExperience()">Iniciar Experiencia</button>
+  </div>
+
+  <!-- Audio de bienvenida -->
+  <audio id="audio-welcome" src="audio1-bienvenida.mp3" preload="auto"></audio>
+
+  <!-- 2. Interfaz de Usuario durante RA -->
+  <div id="ar-ui">
+    <div class="caption-card">
+      <p id="ui-text">Cargando la voz de Mazairita...</p>
+    </div>
+    <div id="ui-buttons" class="options-group" style="display: none;">
+      <button class="btn-option btn-yes" onclick="handleChoice(true)">SÍ</button>
+      <button class="btn-option btn-no" onclick="handleChoice(false)">NO</button>
+    </div>
+  </div>
+
+  <!-- 3. Escena de Realidad Aumentada -->
+  <a-scene 
+    embedded 
+    arjs="sourceType: webcam; debugUIEnabled: false;"
+    vr-mode-ui="enabled: false">
+    
+    <a-assets>
+      <a-asset-item id="robot-model" src="mazairita.glb"></a-asset-item>
+    </a-assets>
+
+    <!-- Marcador Hiro genérico para fijar el modelo al detectarlo -->
+    <a-marker preset="hiro">
+      <a-entity 
+        id="mazairita"
+        gltf-model="#robot-model"
+        scale="0.5 0.5 0.5"
+        position="0 0 0"
+        rotation="0 0 0"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+      </a-entity>
+    </a-marker>
+
+    <a-entity camera></a-entity>
+  </a-scene>
+
+  <script>
+    const welcomeScreen = document.getElementById('screen-welcome');
+    const arUI = document.getElementById('ar-ui');
+    const uiText = document.getElementById('ui-text');
+    const uiButtons = document.getElementById('ui-buttons');
+    const audio = document.getElementById('audio-welcome');
+
+    function startExperience() {
+      // Ocultar pantalla de inicio
+      welcomeScreen.style.display = 'none';
+      arUI.style.display = 'flex';
+      uiText.innerText = "Apunta la cámara al marcador o afiche para ver a Mazairita.";
+
+      // Iniciar audio
+      audio.play().then(() => {
+        uiText.innerText = "Escuchando a Mazairita: ¡Hola! Te doy la bienvenida a la Expo de la Muzzilli.";
+      }).catch(error => {
+        console.log("Error al reproducir audio:", error);
+        uiText.innerText = "¡Bienvenido a la Expo! (Haz clic en la pantalla si no escuchas el audio)";
+      });
+    }
+
+    // Evento al finalizar la reproducción del audio
+    audio.onended = function() {
+      uiText.innerText = "¡Esperamos que disfrutes el recorrido! ¿Quieres más información sobre la orientación en Producción Multimedia?";
+      uiButtons.style.display = 'flex';
+    };
+
+    function handleChoice(wantsMoreInfo) {
+      if (wantsMoreInfo) {
+        // Redirige al PDF con la información detallada de la carrera
+        window.location.href = "informacion-multimedia.pdf";
+      } else {
+        // Muestra mensaje de agradecimiento e invita a seguir recorriendo la expo
+        uiButtons.style.display = 'none';
+        uiText.innerText = "¡Muchas gracias! Continúa visitando la muestra de trabajos. Encontrarás más códigos QR con sorpresas e información sobre la orientación.";
+      }
+    }
+  </script>
+</body>
+</html>
