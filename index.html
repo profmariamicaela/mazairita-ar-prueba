@@ -4,19 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Expo E.T. N° 20 Carolina Muzilli - Producción Multimedial</title>
-  
-  <!-- Carga del componente de Google model-viewer para WebAR directa -->
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+
+  <!-- Librerías de A-Frame y AR.js para Realidad Aumentada basada en cámara/marcador -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 
   <style>
-    /* PALETA DE COLORES UNIFICADA
-       Fondo principal: #0d1117 (Azul noche oscuro)
-       Acento primario: #00e5ff (Cian neón multimedial)
-       Acento secundario/Éxito: #00b0ff (Azul brillante)
-       Tarjetas y modales: #161b22 (Gris azulado con transparencia)
-       Texto principal: #f0f6fc
-    */
-
+    /* PALETA DE COLORES UNIFICADA */
     * {
       box-sizing: border-box;
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -31,7 +25,7 @@
       height: 100vh;
     }
 
-    /* Pantalla de Bienvenida */
+    /* Pantalla de Bienvenida (Necesaria para solicitar permisos de Cámara y Audio en celulares) */
     #screen-welcome {
       position: fixed;
       inset: 0;
@@ -42,7 +36,7 @@
       align-items: center;
       text-align: center;
       padding: 24px;
-      z-index: 1000;
+      z-index: 10000;
     }
 
     #screen-welcome h1 {
@@ -77,33 +71,9 @@
 
     .btn-main:active {
       transform: scale(0.96);
-      box-shadow: 0 2px 10px rgba(0, 229, 255, 0.2);
     }
 
-    /* Contenedor del Modelo 3D / Visor RA */
-    model-viewer {
-      width: 100vw;
-      height: 100vh;
-      background-color: #0d1117;
-      --poster-color: transparent;
-    }
-
-    /* Botón flotante para proyectar RA en el piso/espacio */
-    .ar-button {
-      background-color: #00e5ff;
-      color: #0d1117;
-      border-radius: 20px;
-      border: none;
-      padding: 12px 24px;
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      font-weight: bold;
-      z-index: 99;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-    }
-
-    /* Interfaz de Texto y Botones Superpuestos */
+    /* Interfaz de Texto y Botones Superpuestos a la Cámara */
     #ar-ui {
       position: fixed;
       bottom: 24px;
@@ -111,7 +81,7 @@
       transform: translateX(-50%);
       width: calc(100% - 32px);
       max-width: 480px;
-      z-index: 500;
+      z-index: 9999;
       display: none;
       flex-direction: column;
       align-items: center;
@@ -135,9 +105,9 @@
       margin: 0;
       font-size: 15px;
       line-height: 1.5;
+      white-space: pre-line;
     }
 
-    /* Grupo de Botones de Opciones (SI / NO) */
     .options-group {
       display: flex;
       gap: 12px;
@@ -176,33 +146,17 @@
 </head>
 <body>
 
-  <!-- 1. Pantalla Inicial -->
+  <!-- 1. Pantalla Inicial (Necesaria por políticas de permisos de cámara y audio de iOS/Android) -->
   <div id="screen-welcome">
     <h1>Escuela Técnica N° 20 D.E. 20<br>"Carolina Muzzilli"</h1>
     <h2>Especialidad: Producción Multimedial</h2>
-    <button class="btn-main" onclick="startExperience()">Iniciar Experiencia</button>
+    <button class="btn-main" onclick="startExperience()">Iniciar Experiencia RA</button>
   </div>
 
   <!-- Audio de bienvenida -->
   <audio id="audio-welcome" src="audio1-bienvenida.mp3" preload="auto"></audio>
 
-  <!-- 2. Visor 3D y Realidad Aumentada -->
-  <model-viewer 
-    id="mazairita-viewer"
-    src="UNIFICADO-APARICION-SALUDO.glb" 
-    ar 
-    ar-modes="webxr scene-viewer quick-look" 
-    camera-controls 
-    auto-rotate 
-    shadow-intensity="1"
-    alt="Modelo 3D de Mazairita">
-    
-    <button slot="ar-button" class="ar-button">
-      📷 Ver en tu espacio (RA)
-    </button>
-  </model-viewer>
-
-  <!-- 3. Contenedor de Texto y Preguntas Interactivas -->
+  <!-- 2. Interfaz de Texto y Botones superpuesta sobre el Live Video de la Cámara -->
   <div id="ar-ui">
     <div class="caption-card">
       <p id="ui-text"></p>
@@ -214,6 +168,31 @@
     </div>
   </div>
 
+  <!-- 3. Escena de Realidad Aumentada sobre la Cámara -->
+  <a-scene 
+    embedded 
+    arjs="sourceType: webcam; debugUIEnabled: false;"
+    vr-mode-ui="enabled: false">
+    
+    <a-assets>
+      <a-asset-item id="robot-model" src="mazairitaGIRO.glb"></a-asset-item>
+    </a-assets>
+
+    <!-- Marcador en la entrada/afiche: cuando la cámara apunta al afiche, aparece el robot flotando -->
+    <a-marker preset="hiro">
+      <a-entity 
+        id="mazairita"
+        gltf-model="#robot-model"
+        scale="1 1 1"
+        position="0 0 0"
+        rotation="0 0 0"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear">
+      </a-entity>
+    </a-marker>
+
+    <a-entity camera></a-entity>
+  </a-scene>
+
   <script>
     const welcomeScreen = document.getElementById('screen-welcome');
     const arUI = document.getElementById('ar-ui');
@@ -221,37 +200,23 @@
     const uiButtons = document.getElementById('ui-buttons');
     const audio = document.getElementById('audio-welcome');
 
-    // Texto exacto solicitado
     const welcomeSpeech = "¡Hola! ¡Bienvenido a la Técnica 20 “Carolina Muzilli”! Mi nombre es Mazairita y voy a acompañarte en este recorrido por la especialidad de Producción Multimedial.\n\nPara conocer cada una de las materias y descubrir todo lo que se aprende, solo tenés que escanear el código QR de cada stand.\n\n¡COMENCEMOS!";
 
     function startExperience() {
-      // Oculta la bienvenida e interactúa con el visor
+      // Activa la cámara web inmediatamente y oculta el menú de inicio
       welcomeScreen.style.display = 'none';
       arUI.style.display = 'flex';
       
-      // Muestra el texto en pantalla inmediatamente
+      // Carga el texto sobre el video en vivo
       uiText.innerText = welcomeSpeech;
 
-      // Reproduce el audio de bienvenida
+      // Inicia la voz de Mazairita
       audio.play().catch(error => {
-        console.log("Autoplay restringido por el navegador:", error);
+        console.log("Error al reproducir el audio:", error);
       });
     }
 
-    // Al finalizar el audio, se activa la pregunta final con la paleta de colores unificada
+    // Cuando termina el audio, cambia el texto y abre los botones SI / NO
     audio.onended = function() {
       uiText.innerText = "¿Querés más información sobre la orientación?";
-      uiButtons.style.display = 'flex';
-    };
-
-    function handleChoice(wantsMoreInfo) {
-      if (wantsMoreInfo) {
-        window.location.href = "informacion-multimedia.pdf";
-      } else {
-        uiButtons.style.display = 'none';
-        uiText.innerText = "¡Muchas gracias! Continuá visitando la muestra de trabajos y vas a encontrar más QR con información sobre la orientación.";
-      }
-    }
-  </script>
-</body>
-</html>
+      ui
